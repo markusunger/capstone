@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Stream Request Test</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <button type="button" id="start-request">
+      Send Request
+    </button>
+    <div id="output">
+      Nothing to see yet.
+    </div>
+    <script>
+      const btn = document.getElementById('start-request');
+      const log = document.getElementById('output');
+
+      let responseCounter = 1;
+
+      btn.addEventListener('click', function startFetch(e) {
+        const startTime = Date.now();
+        fetch('http://localhost:1337/')
+        .then(function handleSuccess(response) {
+          const endTime = Date.now();
+          const newP = document.createElement('p');
+          const textNode = document.createTextNode(`Response ${responseCounter} received. It took ${endTime - startTime} milliseconds.`);
+          newP.appendChild(textNode);
+          log.appendChild(newP);
+          responseCounter += 1;
+        });
+      });
+    </script>
+  </body>
+</html>
