@@ -282,3 +282,13 @@ await SQL3.exec(initSQL);
 
 Any of the SQL methods that have been promisified can be `await`'ed and therefore used in an asynchronous context.
 
+# Web Servers
+
+For handling HTTP request and response cycles, Node.js comes with a standard module called `http`. This can be used to create a simple HTTP web server.
+
+```js
+const http = require('http');
+
+http.createServer((req, res) => res.end('pong')).listen(1338, () => console.log('Listening ...'));
+```
+
