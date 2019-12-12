@@ -292,3 +292,4 @@ const http = require('http');
 http.createServer((req, res) => res.end('pong')).listen(1338, () => console.log('Listening ...'));
 ```
 
+In theory, the `http` module (and probably `https`) is all that is needed. The request object contains all information to correctly identify routes for different URLs, the path could be regex'ed to allow parameters, etc. In practice, a framework like `Express.js` or `Koa` provides an easier API to handle all this functionality.
