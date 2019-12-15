@@ -89,10 +89,12 @@ app.use((error, request, response, next) => {
 });
 
 app.use((error, request, response, next) => {
-  res.status(500);
-  res.end('Internal Server Error!');
+  response.status(500);
+  response.end('Internal Server Error!');
 });
 ```
+
+Side note: sending a response status code is done with `response.status(statusCodeNumber)`. This method returns the response object itself again, so that calls can be chained: `response.status(404).render('notfound_page')`.
 
 Express is a very barebones framework which has lead to lots of third-party middleware libraries. A middleware function that comes built into Express would be `static` to serve static files:
 
@@ -247,3 +249,72 @@ app.get('/', (req, res) => {
 ```
 
 This renders the view `/views/index.ejs` and passes it data in the form of an object, whose properties can be dynamically inserted in the EJS template.
+
+## Embedded JavaScript (EJS)
+
+_Embedded JavaScript (EJS)_ is one of the simplest and also most popular view engines available for use in Express. Its syntax is very similar to the ERB templating language available in the Ruby world.
+
+EJS can simply template HTML with no difference in syntax. Several tags are used to inject dynamic content into the surrounding HTML:
+
+- `<%` - no output, used for control flow or other operations without visual representation
+- `<%=` - outputs the value into the HTML (escaped)
+- `<%-` - outputs unescaped value into the HTML
+- `%>` - normal ending tag
+- `-%>`- trim-mode end tag, trims the following newline
+
+_Includes_ can be included into the current template by calling `include` (d'oh).
+
+```html
+<%- include('users/show', { userData: user }); -%>
+```
+
+The raw output tag should be used for includes to prevent double-escaping the HTML output.
+
+The easiest way to pass data into an EJS template from Express is by using the data object for the `render` method.
+
+```js
+response.render('index', { data: 'someData' });
+```
+
+This means explicitly setting properties on that object for every `render()` call in every route. Another option is to use properties on `app.locals` which are automatically mixed into the data object for any `render()` call.
+
+```js
+app.locals.delimiter = '?';
+```
+
+# Express and MongoDB
+
+MongoDB is a _document database_, compared to the relational databases like PostgreSQL or MySQL. Each MongoDB server manages multiple databases, that consist of one or many collections with one or many documents in it. Those documents are in BSON format (_Binary JSON_) which get translated to and from a Node.js application to a proper JavaScript object. Therein lies one of the advantags of MongoDB: its data model is almost identical to what JavaScript uses for its object storage/parsed JSON.
+
+In order to communicate with MongoDB from a Node.js application, a library is needed. _Mongoose_ is the de-facto standard library for that.
+
+Everything starts with a _Mongoose Schema_. While _schema_ is a loaded word from the SQL world, it basically describes the fields of a MongoDB collection: their properties, types and requirements. It might look like this:
+
+```js
+const entrySchema = mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  mail: String,
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  entry: {
+    type: String,
+    required: true,
+  },
+});
+```
+
+The simplest form of a field declaration is by just declaring the type (`mail: String` is a shorthand for `mail: { type: String }`).
+
+Permitted data types are: `String`, `Number`, `Date`, `Buffer`, `Boolean`, `Array`, `Map` and the more uncommon types `Mixed`, `ObjectId` and `Decimal128`.
+
+The schema now needs to be attached to an actual model:
+
+```js
+const Entry = mongoose.model('Entry', entrySchema);
+```
