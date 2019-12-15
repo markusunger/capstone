@@ -1,0 +1,38 @@
+<%- include('header') -%>
+
+    <h1 class="title">Add an entry</h1>
+
+    <% if (fillinMore) { %>
+      <div class="notification is-warning">
+        You're mising information. Please remember that both a <strong>name</strong> and an <strong>entry</strong> are required. Only
+        providing your email address is voluntary.
+      </div>
+    <% } %>
+
+    <div class="content">
+      Or go <a href="/">back to the guestbook</a> if you don't want to add an entry.
+    </div>
+
+    <form method="POST" action="/add">
+      <div class="field">
+        <label for="name">Your Name</label>
+        <div class="control">
+          <input type="text" id="name" name="name">
+        </div>
+      </div>
+      <div class="field">
+        <label for="mail">Your mail</label>
+        <div class="control">
+          <input type="text" id="mail" name="mail">
+        </div>
+      </div>
+      <div class="field">
+        <label for="entry">Your entry</label>
+        <div class="control">
+          <textarea id="entry" name="entry" required></textarea>
+        </div> 
+      </div>
+      <button class="button is-link" type="submit">Send</button>
+    </form>  
+
+<%- include('footer') -%>

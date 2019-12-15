@@ -1,13 +1,18 @@
-const entries = [];
+module.exports = (function handleEntries() {
+  const entries = [];
 
-module.exports = {
-  add(name, entry) {
-    entries.push({
-      name,
-      entry,
-    });
-  },
-  all() {
-    return entries.slice();
-  },
-};
+  return {
+    add(name, mail, entry) {
+      entries.push({
+        date: new Date(),
+        name,
+        mail,
+        entry,
+      });
+    },
+
+    all() {
+      return entries.slice().reverse();
+    },
+  };
+}());

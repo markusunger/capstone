@@ -1,1 +1,16 @@
-<h1>Hello <%= name %></h1>
+<%- include('header') -%>
+
+  <h1 class="title">Guestbook</h1>
+  <p><a href="/add">Add entry</a></p>
+  <% entries.forEach((entry) => { %>
+    <div class="box">
+      <div class="content">
+        <strong><a href="mailto:<%= entry.mail %>"><%= entry.name %></a></strong>
+        (<%= entry.date.toLocaleDateString() %>)
+      </div>
+      <div class="content is-large">
+        <em><%= entry.entry %></em>
+      </div>
+    </div>
+  <% }); %>
+<%- include('footer') -%>
