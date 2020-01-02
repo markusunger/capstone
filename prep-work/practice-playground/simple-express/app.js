@@ -1,14 +1,17 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const logger = require('morgan');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 
 const path = require('path');
-const entries = require('./entries');
+const Entry = require('./entries');
 
 const HTTP_PORT = 3030;
 
 const app = express();
+
+mongoose.connect('mongodb://localhost:27017/guestbook');
 
 app.set('views', path.resolve(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -21,7 +24,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get('/', (req, res) => {
-  res.render('index', { entries: entries.all() });
+  Entry.find()
+    .sort({ createdAt: 'descending' })
+    .exec((err, entries) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.render('index', { entries });
+      }
+    });
 });
 
 app.get('/add', (req, res) => {
@@ -33,7 +44,12 @@ app.post('/add', (req, res) => {
   if (!name || !entry) {
     res.render('add', { fillinMore: true });
   } else {
-    entries.add(name, mail, entry);
+    const newEntry = new Entry({
+      name,
+      mail,
+      entry,
+    });
+    newEntry.save();
     res.redirect('/');
   }
 });

@@ -2,7 +2,7 @@
 
 _Express.js_ is a small, relatively unopinionated framework that relies on Node.js' internal web server functionality to add a clean and simple API and some additional functionality. 
 
-In general, Node.js provides a way to handle HTTP or HTTPS requests via the `http` or `htttps` core modules:
+In general, Node.js provides a way to handle HTTP or HTTPS requests via the `http` or `https` core modules:
 
 ```js
 const http = require('http');
@@ -15,7 +15,7 @@ server.listen(1338, () => console.log('Listening ...'));
 
 The HTTP server in the example above is at its core a function (`handleRequest`) that receives two arguments: the request (`req`) and the response (`res`, both are streams). Actually defining routes and serving content requires writing lots of additional boilerplate code to extract information from the request object (e.g. the requested URL, headers) in order to determine the course of action and what should be sent to the response object (writing headers, defining the correct content type and length, etc.).
 
-Once the `end` method (or various other methods like `send` or `sendFile`) on the response object is called, the response itself is sent to the client.
+Once the `end` method or various other methods like `send` or `sendFile` on the response object are called, the response itself is sent to the client.
 
 Enter _Express.js_! It basically wraps around that one handler function and instead exposes several smaller functions to define routes, middleware etc. It also enriches the request object with more information about the request and its sender.
 
@@ -30,7 +30,7 @@ _Middleware_ allows to break up that one monolithic request handler function int
 
 _Routing_ is similar to middleware in the sense that it also breaks up the request handler, but does so in a conditional way: depending on the requested URL, a different routing function is executed.
 
-_Subapplications_ are called _routers_ in Express and allows for the compartmentalization of the app into smaller pieces. 
+_Subapplications_ are called _routers_ in Express and allow for the compartmentalization of the app into smaller pieces. 
 
 _Conveniences_ mainly refers to syntactic sugar around more complicated features like `sendFile()` that wraps a couple dozen lines of code into one convenient method. Express also adds a few helpful properties to the request object (but doesn't remove any).
 
@@ -46,7 +46,7 @@ app.get('/', (req, res) => res.send('It serves.')); // defines a route and the h
 app.listen(8080); // starts the server to listen for incoming requests on the specified port
 ```
 
-The call to `app.listen()` is a shorthand for `http.createServer(app).listen()`. In the background, Express simply relies on Node's `http` module.
+The call to `app.listen()` is a shorthand for `http.createServer(app).listen()`, because in the background, Express simply relies on Node's `http` (or `https`) module.
 
 # Middleware
 
@@ -65,11 +65,11 @@ Eventually, one of those middleware functions has to call `end` (or some equival
 There is one exception to this rule, though: _error-handling middleware_.
 
 Whenever the `next()`  call gets passed an argument (a general convention is to use a an error object, e.g. `next(new Error('Something went wrong)))`, the Express app enters _error mode_. Now all normal middleware executions are skipped and only error-handling middleware gets executed.  
-Thes special middleware functions take four (instead of three) arguments: the error first (the argument passed into `next()`) and then - as usual - `request`, `response` and `next`.
-This error handler can call `next()` without an argument to exit error mode and continue with the execution of the normal middleware stack, or the handler uses e.g. `res.end` to end the request and send the response.  
+These special middleware functions take four (instead of three) arguments: the error first (the argument passed into `next()`) and then - as usual - `request`, `response` and `next`.
+The error handler can call `next()` without an argument to exit error mode and continue with the execution of the normal middleware stack, or the handler uses e.g. `res.end` to end the request and send the response.  
 If instead, `next()` is called with an argument again, error mode is kept active and the next error-handling middleware gets executed.
 
-During the normal execution of the middleware stack, error handlers get skipped. They are only executed when the app is in error mode!
+During the normal execution of the middleware stack, error handlers get skipped. They are only executed when the app is in error mode.
 
 An example:
 
@@ -96,7 +96,7 @@ app.use((error, request, response, next) => {
 
 Side note: sending a response status code is done with `response.status(statusCodeNumber)`. This method returns the response object itself again, so that calls can be chained: `response.status(404).render('notfound_page')`.
 
-Express is a very barebones framework which has lead to lots of third-party middleware libraries. A middleware function that comes built into Express would be `static` to serve static files:
+Express is a very barebones framework which has led to lots of third-party middleware libraries. A middleware function that comes built into Express would be `static` to serve static files:
 
 ```js
 const path = require('path');
@@ -109,11 +109,11 @@ app.use(express.static(path.resolve(__dirname, 'public')));
 
 `express.static` embraces the middleware approach: if the file requested is in the specified directory, it sends it as a response. If not, execution gets deferred to the next middleware function.
 
-There are many commonly used third-party middleware packages. Some of the mare listed here:
+There are many commonly used third-party middleware packages. Some of them are listed here:
 
 - `morgan`: a logger
 - `body-parser`: makes the request body available as a parsed object, included in Express 4.16+
-- `cookie-parser`: needs to be coupled with `express-session` to make cookie data availalbe on the client and the server
+- `cookie-parser`:can be coupled with `express-session` to make cookie data available on the client and the server
 - `compression`: for gzipping responses
 
 # Routing
@@ -144,7 +144,7 @@ app.get(/^\/users\/(\d+)$/, (req, res) => {
 });
 ```
 
-URL parameters are not the only way to pass information via the URL. Another way is to use _query strings_ (e.g. `/search?for=javascript&src=stackoverflow`). Query strings are made available in th `request.query` object. For the example, there would be `req.query.search` and `req.query.src`.  
+URL parameters are not the only way to pass information via the URL. Another way is to use _query strings_ (e.g. `/search?for=javascript&src=stackoverflow`). Query strings are made available in the `request.query` object. For the example, there would be `req.query.search` and `req.query.src`.  
 There are a few common headaches caused by query strings, one would be that each query parameter is normally a string, but when used twice (`?src=so&src=mdn`) it becomes an array.
 
 ## Express Router
@@ -213,7 +213,7 @@ HTTP and HTTPS servers can run in parallel from the same application file. The o
 
 Express augments both the request and response objects with useful properties and methods.
 
-`response.redirect()` can redirect to a different path (and therefore hand control over to a different routing handler).
+`response.redirect()` can redirect to a different path (and therefore hand over control to a different routing handler).
 
 ```js
 app.get('/details/:person', (req, res) => {
@@ -235,7 +235,7 @@ app.set('view engine', 'ejs');
 
 The first line sets the path to look for a view file when a template render is invoked. The second line sets the templating language, in this case `EJS` (alternatives are the usual suspects: Handlebars, pug, Mustache, ...). Those have to be pulled in as an `npm` package.
 
-Express adds a method to the response object called `render()` which renders the template (if it is found in the specified views folder) and sends it to the client.
+Express adds a method to the response object called `render()` which renders the template (if it is found in the specified `views` folder) and sends it to the client.
 
 ```js
 app.set('views', path.resolve(__dirname, 'views'));
@@ -254,7 +254,7 @@ This renders the view `/views/index.ejs` and passes it data in the form of an ob
 
 _Embedded JavaScript (EJS)_ is one of the simplest and also most popular view engines available for use in Express. Its syntax is very similar to the ERB templating language available in the Ruby world.
 
-EJS can simply template HTML with no difference in syntax. Several tags are used to inject dynamic content into the surrounding HTML:
+EJS templates can simply represent HTML with no difference in syntax. Several tags are used to inject dynamic content into the surrounding HTML:
 
 - `<%` - no output, used for control flow or other operations without visual representation
 - `<%=` - outputs the value into the HTML (escaped)
@@ -284,7 +284,7 @@ app.locals.delimiter = '?';
 
 # Express and MongoDB
 
-MongoDB is a _document database_, compared to the relational databases like PostgreSQL or MySQL. Each MongoDB server manages multiple databases, that consist of one or many collections with one or many documents in it. Those documents are in BSON format (_Binary JSON_) which get translated to and from a Node.js application to a proper JavaScript object. Therein lies one of the advantags of MongoDB: its data model is almost identical to what JavaScript uses for its object storage/parsed JSON.
+MongoDB is a _document database_, compared to the relational databases like PostgreSQL or MySQL. Each MongoDB server manages multiple databases, that consist of one or many collections with one or many documents in it. Those documents are in BSON format (_Binary JSON_) which get translated to and from a Node.js application to a proper JavaScript object. Therein lies one of the advantages of MongoDB: its data model is almost identical to what JavaScript uses for its object storage/parsed JSON.
 
 In order to communicate with MongoDB from a Node.js application, a library is needed. _Mongoose_ is the de-facto standard library for that.
 
@@ -313,8 +313,67 @@ The simplest form of a field declaration is by just declaring the type (`mail: S
 
 Permitted data types are: `String`, `Number`, `Date`, `Buffer`, `Boolean`, `Array`, `Map` and the more uncommon types `Mixed`, `ObjectId` and `Decimal128`.
 
+A schema can also hold instance methods that will be available on all documents created from a model (that itself is compiled from the schema). Those instance methods can either be added via the `Schema.prototype.method()` or directly on the `Schema.methods` object.
+
+```js
+entrySchema.methods.getMail = function getMail() {
+  return this.mail || 'no-mail@provid.ed';
+}
+```
+
 The schema now needs to be attached to an actual model:
 
 ```js
 const Entry = mongoose.model('Entry', entrySchema);
+module.exports = Entry;
 ```
+
+In a Node.js context, this `Entry` model will be used for documents created from the model, so exporting it for external requiring is necessary.
+
+The application itself can now use a model to either
+- create a new document (an instance of a model)
+- query existing documents by using model functions (like `find`)
+
+In order to do both, a connection to a MongoDB server needs to be established:
+
+```js
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/guestbook'); // connects to database 'guestbook' on localhost
+```
+
+Running queries is done by calling one of a model's static helper functions. There are several functions for standard CRUD operations like:
+- `deleteMany()` and `deleteOne()`
+- `find()` and `findOne()`
+- `updateMany()` and `updateOne()`
+
+Each of those functions returns a `Query` object. Since every query is resolved asynchronously, it will need either a callback or a chained `then` call to actually be able to access the query results.
+
+```js
+Entry.findOne({ name: 'Markus' }, function (err, entry) {
+  if(err) handleError(err);
+  console.log(`Entry is ${entry}`);
+});
+
+// or use the query as a thenable:
+
+Entry.findOne({ name: 'Markus' })
+  .then(entry => console.log(`Entry is ${entry}`),
+        err => console.log(`Encountered an error: ${err}`));
+```
+
+Note, however, that queries in Mongoose are **not** Promises: multiple `then()` calls execute the query multiple times as well!
+
+One of Mongoose's convenience features is _chainable queries_. Calling query functions without a callback or a `then()` allows for chaining query helper functions together.
+
+```js
+Entry
+  .find({ name: 'Markus' })
+  .limit(3)
+  .sort({ date: 'desc' })
+  .exec(callback);
+```
+
+(See https://mongoosejs.com/docs/api.html#Query for a list of all query helpers.)
+
+## Authentication with Passport.js
+

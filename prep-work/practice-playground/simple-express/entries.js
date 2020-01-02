@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 
 const entrySchema = mongoose.Schema({
-  username: {
+  name: {
     type: String,
     required: true,
-    unique: true,
   },
   mail: {
     type: String,
@@ -23,22 +22,3 @@ const entrySchema = mongoose.Schema({
 const Entry = mongoose.model('Entry', entrySchema);
 
 module.exports = Entry;
-
-// module.exports = (function handleEntries() {
-//   const entries = [];
-
-//   return {
-//     add(name, mail, entry) {
-//       entries.push({
-//         date: new Date(),
-//         name,
-//         mail,
-//         entry,
-//       });
-//     },
-
-//     all() {
-//       return entries.slice().reverse();
-//     },
-//   };
-// }());
