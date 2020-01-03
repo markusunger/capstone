@@ -134,6 +134,8 @@ app.get('/about/:person', (req, res) => {
 });
 ```
 
+The second argument is usually a callback function that gets executed like a middleware if the route is matched. There can also be multiple callbacks (either as an array or just separated by commas) that get treated like a series of midleware functions (with a call to `next('route')` bypassing any remaining route callbacks).
+
 For more fine-grained control over the route, regular expressions can be used:
 
 ```js
@@ -377,3 +379,10 @@ Entry
 
 ## Authentication with Passport.js
 
+_Passport_ is an authentication middleware that can easily be used inside of a route in Express. In order to use it, the following configurations need to be done.
+
+### Defining an authentication strategy
+
+### Defining application middleware
+
+### Configuring sessions
