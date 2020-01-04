@@ -363,7 +363,7 @@ Entry.findOne({ name: 'Markus' })
         err => console.log(`Encountered an error: ${err}`));
 ```
 
-Note, however, that queries in Mongoose are **not** Promises: multiple `then()` calls execute the query multiple times as well!
+Note, however, that queries in Mongoose are **not** Promises: multiple `then()` calls execute the query multiple times as well! In order to recieve a real promise as the return value, the `exec()` method can be called on a query.
 
 One of Mongoose's convenience features is _chainable queries_. Calling query functions without a callback or a `then()` allows for chaining query helper functions together.
 
@@ -375,7 +375,125 @@ Entry
   .exec(callback);
 ```
 
+In a query chain `.lean()` would convert the mongoose document(s) - that have all those properties and complex helper methods on them - to plain JS objects. This can save both memory and runtime if simple objects are all that's needed (e.g. in an API that will send only JSON as a response anyway).
+
 (See https://mongoosejs.com/docs/api.html#Query for a list of all query helpers.)
+
+### Associations
+
+Relationships between collections in MongoDB can be expressed with _associations_. For that to work, a schema can define a field of the type `ObjectId` (which the default `_id` property of any document is an instance of) plus a _reference_.
+
+```js
+const userSchema = mongoose.Schema({
+  name: String,
+  organization: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Orga',
+  }
+});
+
+const orgaSchema = mongoose.Schema({
+  name: String,
+});
+
+const User = mongoose.model('User', userSchema);
+const Orga = mongoose.model('Orga', orgaSchema);
+```
+
+The `ref` property of the `organization` field in the `userSchema` references the name provided to the `mongoose.model` creation method.
+
+When saving such an `ObjectId`, the appropriate id can be determined by querying for the desired document and referencing the `<object>._id` property.
+
+In order to receive data from a query in those fields that is the actual referenced object itself (and not just the `ObjectId`), a query can be constructed like this:
+
+```js
+const match = User.find({})
+  .populate('organization')
+  .exec()
+```
+
+### Virtuals
+
+_Virtuals_ are a kind of computed property that doesn't exist in the document itself, but instead gets computed every time the virtual property is accessed. There can bei either virtual getters or virtual setters.
+
+```js
+const entrySchema = mongoose.Schema({
+  username: String,
+  mail: String,
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  favorites: [],
+});
+
+entrySchema.virtual('favoriteCount')
+  .get(function() {
+    return this.favorites.length;
+    // remember to not use arrow functions here, so that `this`
+    // correctly refers to the entry, not the global object
+  })
+```
+
+### Middleware
+
+_Middleware_ (also referred to as _hooks_) are functions that will be executed before or after a certain operation via `pre` and `post` hooks. Middleware can be defined for:
+- documents (supporting operations to hook into like `validate`, `save` or `remove`)
+- queries (for e.g. `find`, `findOne` or `update`)
+- aggregates
+- models
+
+```js
+const entrySchema = mongoose.Schema({
+  username: String,
+  mail: String,
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  favorites: [],
+});
+
+entrySchema.pre('validation', function() {
+  console.log('stuff done before validation, so doing my own first.');
+});
+
+entrySchema.post('save', function() {
+  console.log('right after saving'.);
+});
+```
+
+Middleware functions can receive a function argument `next` that refers to the next middleware function to be called afterwards. With that, multiple middleware functions can be executed one after the other asynchronously.
+
+`post` hooks receive an object as their first function argument that - depending on what the the middleware type is - refers to the affected document(s)/model(s)/...
+
+Middleware can be used for many things, one common use case is maintaining integrity with the `ObjectId` references mentioned above. If a document is deleted and another document references that deleted document via its `_id`, there is no automatic deletion of that reference. Instead, a middleware can be defined for that schema that checks with a `post` hook after the removal for any possible references in another schema's documents and update them as well.
+
+### Compound indexes
+
+Using the `unique` property in a schema creates an index for that field automatically. This can also be done in a different way by explicitly defining such an index:
+
+```js
+const schema = mongoose.Schema({ name: String } });
+schema.index({
+    name: 1,
+  }, {
+    unique: true,
+  }
+});
+```
+
+This notation can also be used to create _compound indexes_, meaning indexes over more than one field:
+
+```js
+  schema.index({
+    item: 1,
+    qty: 1,
+  });
+```
+
+For a schema with two fields `item` and `qty`, this index would support quick lookup for queries over the two fields like `Stock.find({ item: 'fnords', qty: { $gt: 5 }})`. The sort order actually matters for compound indexing, so the field property can be set to either `1` (ascending) or `-1` (descending).
 
 ## Authentication with Passport.js
 
