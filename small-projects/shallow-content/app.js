@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const flash = require('connect-flash');
 
 const LocalStrategy = require('passport-local').Strategy;
 
@@ -19,18 +20,22 @@ const { env } = process;
 
 const app = express();
 
-mongoose.connect(`mongodb://${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`);
+mongoose.connect(`mongodb://${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`, {
+  useNewUrlParser: true,
+});
 
 app.set('views', path.resolve(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(morgan('tiny'));
+app.use(morgan('dev'));
 app.use(express.static(path.resolve(__dirname, 'static')));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(flash());
 
 app.use(session({
   secret: env.SESSION_SECRET,
   resave: true,
+  saveUninitialized: true,
 }));
 
 // auth stuff
@@ -38,7 +43,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(new LocalStrategy((username, password, done) => {
-  User.findOne({ name: username })
+  User.findOne({ username })
     .then((user) => {
       if (!user) return done(null, false, { message: 'Username not found.' });
       if (!user.correctPassword(password)) return done(null, false, { message: 'Password incorrect.' });

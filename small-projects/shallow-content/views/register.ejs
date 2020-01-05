@@ -1,0 +1,22 @@
+<%- include('_header') -%> 
+
+<h1 class="title">Create an account</h1>
+
+<% if (message && message.length > 0) { %>
+  <div class="notification is-warning">
+    <% message.forEach(message => { %>
+      <p></p><%= message %></p>
+    <% }); %>
+  </div>
+<% } %>
+
+<form method="POST" action="/register">
+  Username: <input type="text" name="username" required>
+  E-Mail address: <input type="text" name="mail" required>
+  Password: <input type="password" name="password" required>
+  A short description about you:
+  <textarea name="description"></textarea>
+  <input type="submit" value="Create account">
+</form>
+
+<%- include('_footer') -%> 
