@@ -1,8 +1,20 @@
 const User = require('../models/user');
+const Post = require('../models/post');
 
 module.exports = {
-  main: function main(req, res) {
-    res.render('index', { user: req.user });
+  main: function main(req, res, next) {
+    Post
+      .find({})
+      .sort({ date: 'desc' })
+      .limit(10)
+      .populate('author')
+      .exec()
+      .then((posts) => {
+        res.render('index', { user: req.user, posts });
+      },
+      (err) => {
+        next(err);
+      });
   },
 
   login: function login(req, res) {

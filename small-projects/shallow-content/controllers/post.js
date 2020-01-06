@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 const User = require('../models/user');
 const Post = require('../models/post');
 
@@ -14,10 +15,10 @@ module.exports = {
       req.flash('error', 'A post must consist of a title and some content.');
       res.redirect('/post');
     }
-    User.findOne({ _id: req.user.id }).exec()
+    User.findOne({ _id: req.user._id }).exec()
       .then((user) => {
         const newPost = new Post({
-          author: user.id,
+          author: user._id,
           title,
           content,
         });
@@ -33,7 +34,7 @@ module.exports = {
     const postId = req.params.Id;
     Post
       .findOne({ id: postId })
-      .populate('User')
+      .populate('author')
       .exec()
       .then((post) => {
         res.render('viewPost', { post });

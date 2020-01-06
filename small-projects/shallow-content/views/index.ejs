@@ -14,7 +14,25 @@
 </div>
 
 <div class="content">
+  <% posts.forEach((post) => { %>
+    <div class="card">
+      <header class="card-header">
+        <p class="card-header-title">
+          <%= post.title %>
+        </p>
+        <p class="is-size-7">
+          by <%= post.author.username %> @ <%= post.date.toLocaleString() %></p>
+      </header>  
 
+      <div class="card-content">
+        <p><%= post.content %></p>  
+      </div>
+
+      <footer class="card-footer">
+        <p class="card-footer-item"><%= post.voteCount %> upvotes so far</p>
+      </footer>
+    </div>
+  <% }); %>
 </div>
 
 <%- include('_footer') -%>

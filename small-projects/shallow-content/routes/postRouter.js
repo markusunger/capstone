@@ -3,7 +3,7 @@ const postController = require('../controllers/post');
 
 const post = express.Router();
 
-post.use((req, res, next) => {
+const requireAuth = (req, res, next) => {
   // middleware to make sure that the user is authenticated for doing any
   // post creation
   if (!req.isAuthenticated()) {
@@ -11,11 +11,11 @@ post.use((req, res, next) => {
     res.redirect('/login');
   }
   next();
-});
+};
 
-post.get('/', postController.main);
+post.get('/', requireAuth, postController.main);
 post.get('/:id', postController.view);
 
-post.post('/', postController.createPost);
+post.post('/', requireAuth, postController.createPost);
 
 module.exports = post;
