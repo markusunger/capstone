@@ -14,6 +14,7 @@ post.use((req, res, next) => {
 });
 
 post.get('/', postController.main);
+post.get('/:id', postController.view);
 
 post.post('/', postController.createPost);
 

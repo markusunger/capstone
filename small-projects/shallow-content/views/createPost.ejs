@@ -12,7 +12,8 @@
 
 <form method="POST" action="/post">
   Write something to publish:
-  <textarea name="post"></textarea>
+  <input type="text" name="title" required>
+  <textarea name="content" required></textarea>
   <input type="submit" value="Create post">
 </form>
 
