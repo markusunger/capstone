@@ -70,6 +70,13 @@ app.use((req, res) => {
   res.render('notfound');
 });
 
+// handle errors
+app.use((err, req, res, next) => {
+  console.log(err);
+  res.render('error');
+  next(); // leave error mode
+});
+
 http.createServer(app).listen(env.HTTP_PORT, () => {
   console.log(`Server started on port ${env.HTTP_PORT}`);
 });

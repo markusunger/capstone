@@ -18,7 +18,7 @@ module.exports = {
     res.render('register', { message: req.flash('error') });
   },
 
-  createUser: function createUser(req, res) {
+  createUser: function createUser(req, res, next) {
     const {
       username, mail, password, description,
     } = req.body;
@@ -38,11 +38,12 @@ module.exports = {
             username, mail, password, description,
           }).save();
           req.login();
+          res.redirect('/');
         }
       },
       ((err) => {
         console.log(`Something went wrong: ${err}`);
-        res.render('error');
+        next(err);
       }));
   },
 };

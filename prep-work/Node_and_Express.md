@@ -288,12 +288,12 @@ app.locals.delimiter = '?';
 
 MongoDB is a _document database_, compared to the relational databases like PostgreSQL or MySQL. Each MongoDB server manages multiple databases, that consist of one or many collections with one or many documents in it. Those documents are in BSON format (_Binary JSON_) which get translated to and from a Node.js application to a proper JavaScript object. Therein lies one of the advantages of MongoDB: its data model is almost identical to what JavaScript uses for its object storage/parsed JSON.
 
-In order to communicate with MongoDB from a Node.js application, a library is needed. _Mongoose_ is the de-facto standard library for that.
+In order to communicate with MongoDB from a Node.js application, an ORM (or ODM) like _Mongoose_ can be used, that provides an easy API for the MongoDB driver implementation for Node.js.
 
 Everything starts with a _Mongoose Schema_. While _schema_ is a loaded word from the SQL world, it basically describes the fields of a MongoDB collection: their properties, types and requirements. It might look like this:
 
 ```js
-const entrySchema = mongoose.Schema({
+const entrySchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
@@ -384,7 +384,7 @@ In a query chain `.lean()` would convert the mongoose document(s) - that have al
 Relationships between collections in MongoDB can be expressed with _associations_. For that to work, a schema can define a field of the type `ObjectId` (which the default `_id` property of any document is an instance of) plus a _reference_.
 
 ```js
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: String,
   organization: {
     type: mongoose.Schema.Types.ObjectId,
@@ -418,13 +418,8 @@ const match = User.find({})
 _Virtuals_ are a kind of computed property that doesn't exist in the document itself, but instead gets computed every time the virtual property is accessed. There can bei either virtual getters or virtual setters.
 
 ```js
-const entrySchema = mongoose.Schema({
-  username: String,
-  mail: String,
-  date: {
-    type: Date,
-    default: Date.now,
-  },
+const entrySchema = new mongoose.Schema({
+  // ...
   favorites: [],
 });
 
@@ -445,14 +440,8 @@ _Middleware_ (also referred to as _hooks_) are functions that will be executed b
 - models
 
 ```js
-const entrySchema = mongoose.Schema({
-  username: String,
-  mail: String,
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  favorites: [],
+const entrySchema = new mongoose.Schema({
+  // ...
 });
 
 entrySchema.pre('validation', function() {
@@ -475,7 +464,8 @@ Middleware can be used for many things, one common use case is maintaining integ
 Using the `unique` property in a schema creates an index for that field automatically. This can also be done in a different way by explicitly defining such an index:
 
 ```js
-const schema = mongoose.Schema({ name: String } });
+const schema = new mongoose.Schema({ name: String } });
+
 schema.index({
     name: 1,
   }, {
