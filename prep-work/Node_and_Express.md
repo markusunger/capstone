@@ -487,10 +487,74 @@ For a schema with two fields `item` and `qty`, this index would support quick lo
 
 ## Authentication with Passport.js
 
-_Passport_ is an authentication middleware that can easily be used inside of a route in Express. In order to use it, the following configurations need to be done.
+_Passport_ is an authentication middleware that can easily be used as middleware in Express. Setting it up and using it inside of an app requires a few steps of configuration.
 
 ### Defining an authentication strategy
 
+There are different mechanisms that can be used for authentication. One common approach is to verify a username and a password by looking both up in a data store and determining if some valid credentials have been provided by a user.
+
+Passport has packages for this and a ton of third-party authentication services like _OAuth_. `passport-local` is used for a username/password strategy and exposes a constructor function called `Strategy` to use in the Passport configuration.
+
+```js
+const LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy((username, password, done) => {
+  User.findOne({ username })
+    .then((user) => {
+      if (!user) return done(null, false, { message: 'Username not found.' });
+      if (!user.correctPassword(password)) return done(null, false, { message: 'Password incorrect.' });
+      return done(null, user);
+    },
+    (err => done(err)));
+}));
+```
+
+`passport.use()` registers an authentication strategy. Each strategy then requires a _verification callback_ to resolve the credentials for any user. This callback receives three arguments: the provided `username` and `password` and a `done` function that will be returned with certain arguments depending on whether the credentials are valid or not.
+
+This `done` callback follows the typical Node.js style:
+
+```js
+return done(null, user);
+```
+
+The first parameter will either contain an error that occured during the credential verification (like the database not responding) or will otherwise just be `null`. The second parameter receives the user information on a successful lookup, which will be populated to `req.user` to be used in routes/other middleware.
+
+```js
+passport.serializeUser((user, done) => {
+  return done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findById(id)
+    .then(user => done(null, user),
+      err => done(err, null));
+});
+```
+
+After the initial login, a session can be created for each user (using either cookies or another data store like Redis). Passport serializes information about each user as defined with the `serializeUser` and `deserializeUser` methods. When used like above, Passport will only store the user ID in the session cookie and lookup the whole user data on each subsequent request for the population of `req.user`. Again, those methods return a `done` callback specifying errors or the required information.
+
 ### Defining application middleware
 
-### Configuring sessions
+This is as simple as registering to middleware functions for an Express app.
+
+```js
+app.use(passport.initialize());
+app.use(passport.session());
+```
+
+The first line adds Passport functionality to the app itself, the second handles support for session-based persistence of authentication.  
+Note that this requires general session support to be intialized before. Express no longer includes this functionality out of the box, so a middleware like `express-session` needs to be registered before Passport's session middleware.
+
+### Using Passport authentication in a route handler
+
+Passport provides a middleware function called `authenticate` that can be passed into a route handler for authentication.
+
+```js
+router.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login',
+  failureFlash: true,
+}));
+```
+
+`'local'` refers to the strategy to be used (local username/password verification in this case) and can receive another object defining behavior on either success or failure. When using `failureFlash` (or its counterpart `successFlash`), it can be either set to `true` or receive a string notification to pass to `req.flash()` instead. Since we've declared optional messages directly in Passport's verification callback, passing `true` in case of an error will have the flash message middleware use those instead. The coditional redirects specify which route handler will be responsible for finishing the request and sending the actual response.
