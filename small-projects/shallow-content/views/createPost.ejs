@@ -1,0 +1,19 @@
+<%- include('_header') -%> 
+
+<h1 class="title">Create a post</h1>
+
+<% if (message && message.length > 0) { %>
+  <div class="notification is-warning">
+    <% message.forEach(message => { %>
+      <p></p><%= message %></p>
+    <% }); %>
+  </div>
+<% } %>
+
+<form method="POST" action="/post">
+  Write something to publish:
+  <textarea name="post"></textarea>
+  <input type="submit" value="Create post">
+</form>
+
+<%- include('_footer') -%> 

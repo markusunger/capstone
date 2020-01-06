@@ -13,7 +13,8 @@ const LocalStrategy = require('passport-local').Strategy;
 
 require('dotenv').config();
 
-const indexRouter = require('./routes/indexRouter');
+const mainRouter = require('./routes/mainRouter');
+const postRouter = require('./routes/postRouter');
 const User = require('./models/user');
 
 const { env } = process;
@@ -63,7 +64,8 @@ passport.deserializeUser((id, done) => {
 });
 
 // routes
-app.use('/', indexRouter);
+app.use('/post', postRouter);
+app.use('/', mainRouter);
 
 // handle 404's
 app.use((req, res) => {

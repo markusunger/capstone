@@ -1,7 +1,7 @@
 const User = require('../models/user');
 
 module.exports = {
-  index: function index(req, res) {
+  main: function main(req, res) {
     res.render('index', { user: req.user });
   },
 
@@ -34,11 +34,14 @@ module.exports = {
           req.flash('error', 'User already exists.');
           res.redirect('/register');
         } else {
-          new User({
+          const newUser = new User({
             username, mail, password, description,
-          }).save();
-          req.login();
-          res.redirect('/');
+          });
+          newUser.save();
+          req.login(newUser, (err) => {
+            if (err) return next(err);
+            return res.redirect('/');
+          });
         }
       },
       ((err) => {
