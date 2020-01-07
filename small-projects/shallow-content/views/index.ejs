@@ -15,17 +15,20 @@
 
 <div class="content">
   <% posts.forEach((post) => { %>
-    <div class="card">
+    <div class="card bottom-margin">
       <header class="card-header">
-        <p class="card-header-title">
+        <p class="card-header-title card-header-colorized">
           <%= post.title %>
         </p>
-        <p class="is-size-7">
-          by <%= post.author.username %> @ <%= post.date.toLocaleString() %></p>
       </header>  
 
       <div class="card-content">
-        <p><%= post.content %></p>  
+        <p class="is-size-7">
+          by <%= post.author.username %> @ <%= post.date.toLocaleString() %>
+        </p>
+        <p>
+          <%= post.content %>
+        </p>  
       </div>
 
       <footer class="card-footer">
