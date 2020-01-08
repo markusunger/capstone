@@ -278,7 +278,7 @@ The easiest way to pass data into an EJS template from Express is by using the d
 response.render('index', { data: 'someData' });
 ```
 
-This means explicitly setting properties on that object for every `render()` call in every route. Another option is to use properties on `app.locals` which are automatically mixed into the data object for any `render()` call.
+This means explicitly setting properties on that object for every `render()` call in every route. Another option is to use properties on `app.locals` or `res.locals`, which are automatically mixed into the data object for any `res.render()` call.
 
 ```js
 app.locals.delimiter = '?';
@@ -341,6 +341,19 @@ In order to do both, a connection to a MongoDB server needs to be established:
 ```js
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/guestbook'); // connects to database 'guestbook' on localhost
+```
+
+Creating a document from a model is as simple as calling its constructor function.
+
+```js
+const Entry = require('./models/entry');
+
+const newEntry = new Entry({
+  username: 'Testuser',
+  mail: 'testuser@testuserland.com',
+  entry: 'Am I done here?',
+});
+newEntry.save();
 ```
 
 Running queries is done by calling one of a model's static helper functions. There are several functions for standard CRUD operations like:
@@ -412,6 +425,8 @@ const match = User.find({})
   .populate('organization')
   .exec()
 ```
+
+In comparison to an SQL `JOIN`, this actually executes a second query and combines the two afterwards, so liberally using `populate()` to simulate a foreign key is not advised for performance reasons. 
 
 ### Virtuals
 
@@ -498,8 +513,8 @@ Passport has packages for this and a ton of third-party authentication services 
 ```js
 const LocalStrategy = require('passport-local').Strategy;
 
-passport.use(new LocalStrategy((username, password, done) => {
-  User.findOne({ username })
+passport.use(new LocalStrategy((name, password, done) => {
+  User.findOne({ name })
     .then((user) => {
       if (!user) return done(null, false, { message: 'Username not found.' });
       if (!user.correctPassword(password)) return done(null, false, { message: 'Password incorrect.' });
@@ -557,4 +572,4 @@ router.post('/login', passport.authenticate('local', {
 }));
 ```
 
-`'local'` refers to the strategy to be used (local username/password verification in this case) and can receive another object defining behavior on either success or failure. When using `failureFlash` (or its counterpart `successFlash`), it can be either set to `true` or receive a string notification to pass to `req.flash()` instead. Since we've declared optional messages directly in Passport's verification callback, passing `true` in case of an error will have the flash message middleware use those instead. The coditional redirects specify which route handler will be responsible for finishing the request and sending the actual response.
+`'local'` refers to the strategy to be used (local username/password verification in this case) and can receive another object defining behavior on either success or failure. When using `failureFlash` (or its counterpart `successFlash`), it can be either set to `true` or receive a string notification to pass to `req.flash()` instead. Since we've declared optional messages directly in Passport's verification callback, passing `true` in case of an error will have the flash message middleware use those instead. The conditional redirects specify which route handler will be responsible for finishing the request and sending the actual response.
