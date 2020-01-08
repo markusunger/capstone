@@ -32,22 +32,22 @@ module.exports = {
 
   createUser: function createUser(req, res, next) {
     const {
-      username, mail, password, description,
+      name, mail, password, description,
     } = req.body;
 
-    if (!username || !mail || !password) {
+    if (!name || !mail || !password) {
       req.flash('error', 'Information missing.');
       res.redirect('/register');
     }
 
-    User.findOne({ username })
+    User.findOne({ name })
       .then((existingUser) => {
         if (existingUser) {
           req.flash('error', 'User already exists.');
           res.redirect('/register');
         } else {
           const newUser = new User({
-            username, mail, password, description,
+            name, mail, password, description,
           });
           newUser.save();
           req.login(newUser, (err) => {

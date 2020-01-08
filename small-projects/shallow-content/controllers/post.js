@@ -23,24 +23,27 @@ module.exports = {
           content,
         });
         newPost.save();
-        res.redirect(`/post/${newPost.id}`);
+        res.redirect('/');
       },
       (err) => {
         next(err);
       });
   },
 
-  view: function view(req, res, next) {
-    const postId = req.params.Id;
-    Post
-      .findOne({ id: postId })
-      .populate('author')
-      .exec()
-      .then((post) => {
-        res.render('viewPost', { post });
-      },
-      (err) => {
-        next(err);
-      });
+  heart: async function heart(req, res, next) {
+    try {
+      const newPost = await Post.findOneAndUpdate(
+        { _id: req.params.id },
+        { $inc: { hearts: 1 } },
+      );
+      await User.findOneAndUpdate(
+        { name: req.user.name },
+        { $push: { hearts: newPost._id } },
+        { new: true },
+      );
+    } catch (err) {
+      next(err);
+    }
+    res.redirect('/');
   },
 };

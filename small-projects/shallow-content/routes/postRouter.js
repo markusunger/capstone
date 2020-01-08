@@ -7,14 +7,15 @@ const requireAuth = (req, res, next) => {
   // middleware to make sure that the user is authenticated for doing any
   // post creation
   if (!req.isAuthenticated()) {
-    req.flash('error', 'You need to be logged in to post.');
+    req.flash('error', 'You need to be logged in for that.');
     res.redirect('/login');
+  } else {
+    next();
   }
-  next();
 };
 
 post.get('/', requireAuth, postController.main);
-post.get('/:id', postController.view);
+post.get('/heart/:id', requireAuth, postController.heart);
 
 post.post('/', requireAuth, postController.createPost);
 

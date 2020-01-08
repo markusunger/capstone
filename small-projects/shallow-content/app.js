@@ -15,6 +15,7 @@ require('dotenv').config();
 
 const mainRouter = require('./routes/mainRouter');
 const postRouter = require('./routes/postRouter');
+const userRouter = require('./routes/userRouter');
 const User = require('./models/user');
 
 const { env } = process;
@@ -23,6 +24,9 @@ const app = express();
 
 mongoose.connect(`mongodb://${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`, {
   useNewUrlParser: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
 });
 
 app.set('views', path.resolve(__dirname, 'views'));
@@ -43,8 +47,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new LocalStrategy((username, password, done) => {
-  User.findOne({ username })
+passport.use(new LocalStrategy((name, password, done) => {
+  User.findOne({ name })
     .then((user) => {
       if (!user) return done(null, false, { message: 'Username not found.' });
       if (!user.correctPassword(password)) return done(null, false, { message: 'Password incorrect.' });
@@ -63,7 +67,14 @@ passport.deserializeUser((id, done) => {
       err => done(err, null));
 });
 
+// populate res.locals with the current user
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
 // routes
+app.use('/user', userRouter);
 app.use('/post', postRouter);
 app.use('/', mainRouter);
 

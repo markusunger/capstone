@@ -1,0 +1,33 @@
+<%- include('_header'); -%>
+
+<h1 class="title">Edit profile</h1>
+
+<form method="POST" action="/user/edit/<%= user.name %>">
+  <form method="POST" action="/post">
+    <div class="field">
+      <label class="label">New Password</label>
+      <p>(Leave empty if you don't want to change it)</p>
+      <div class="control">
+        <input class="input is-primary" name="password" type="password">
+      </div>
+    </div>
+  
+    <div class="field">
+      <label class="label">Bio</label>
+      <div class="control">
+        <textarea class="textarea is-primary" name="description"><%= user.description %></textarea>
+      </div>
+    </div>
+  
+    <div class="field is-grouped">
+      <div class="control">
+        <button class="button is-link" type="submit">Submit</button>
+      </div>
+      <div class="control">
+        <button class="button is-link is-light" type="reset">Cancel</button>
+      </div>
+    </div>
+  </form>
+</form>
+
+<%- include('_footer'); -%>

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  username: {
+  name: {
     type: String,
     required: true,
     unique: true,
@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   description: String,
+  hearts: [{
+    type: mongoose.Schema.Types.ObjectId,
+  }],
 });
 
 userSchema.pre('save', function hashPassword(done) {
@@ -32,6 +35,11 @@ userSchema.pre('save', function hashPassword(done) {
 userSchema.methods.correctPassword = function correctPassword(password) {
   return bcrypt.compare(password, this.password);
 };
+
+userSchema.virtual('heartCount')
+  .get(function getHeartCount() {
+    return this.hearts.length;
+  });
 
 const User = mongoose.model('User', userSchema);
 

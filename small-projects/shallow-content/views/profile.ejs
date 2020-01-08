@@ -1,0 +1,39 @@
+<%- include('_header'); -%>
+
+<% if (user && lastPosts) { %>
+
+  <h1 class="title"><%= user.name %>'s profile</h1>
+  <% if (isOwner) {%>
+    <p class="">
+      <a href="/user/edit/<%= user.name %>">Edit your profile</a>
+    </p>
+  <% } %>
+  <p><strong>Biography</strong></p>
+  <p><%= user.description %></p>
+
+  <p>&nbsp;</p>
+
+  <nav class="panel">
+    <p class="panel-heading">
+      Last posts
+    </p>
+    
+    <% lastPosts.forEach((post) => { %>
+      <a href="#" class="panel-block">
+        <%= post.hearts %>&nbsp;
+        <span class="panel-icon">
+          <i class="fas fa-heart" aria-hidden="true"></i>
+        </span>
+        <%= post.title %>
+      </a>
+    <%  }) %>
+    </nav>
+        
+<% } else { %>
+
+  <h1 class="title">No valid user selected.</h1>
+  <p><a href="/">Back to the home page</a></p>
+
+<% } %>
+
+<%- include('_footer'); -%>

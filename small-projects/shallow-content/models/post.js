@@ -17,14 +17,11 @@ const postSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  votes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vote',
-  }],
+  hearts: {
+    type: Number,
+    default: 0,
+  },
 });
-
-postSchema.virtual('voteCount')
-  .get(function getVoteCount() { return this.votes.length; });
 
 const Post = mongoose.model('Post', postSchema);
 

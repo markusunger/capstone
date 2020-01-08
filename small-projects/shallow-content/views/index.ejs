@@ -1,39 +1,54 @@
 <%- include('_header') -%>
 
-<h1 class="title">Shallow Content</h1>
-<p class="subtitle is-4">Write dumb things for worthless Internet points</p>
-
 <% if (user) { %>
-  <p>You are logged in as: <%= user.username %>. <a href="/logout">Logout</a></p>
-<% } else { %>
-  <p>You are not logged in. <a href="/login">Login here</a></p>
+  <div class="bottom-margin">
+    <a href="/post">
+      <button class="button is-rounded is-primary">Create a new post</button>
+    </a>
+  </div>
 <% } %>
-
-<div class="new_post">
-  <a href="/post">Create a new post</a>
-</div>
 
 <div class="content">
   <% posts.forEach((post) => { %>
-    <div class="card bottom-margin">
-      <header class="card-header">
-        <p class="card-header-title card-header-colorized">
-          <%= post.title %>
-        </p>
-      </header>  
-
-      <div class="card-content">
-        <p class="is-size-7">
-          by <%= post.author.username %> @ <%= post.date.toLocaleString() %>
-        </p>
-        <p>
-          <%= post.content %>
-        </p>  
-      </div>
-
-      <footer class="card-footer">
-        <p class="card-footer-item"><%= post.voteCount %> upvotes so far</p>
-      </footer>
+    <%
+      options = {
+        day: 'numeric', month: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: 'numeric',
+        hour12: false,
+        timeZone: 'Europe/Berlin' 
+      };
+      const dateFormatted = new Intl.DateTimeFormat('en-GB', options).format(new Date(post.date));
+    %>
+    <div class="box">
+      <article class="media">
+        <div class="media-left">
+          <p class="has-text-centered is-size-4">
+            <%= post.hearts %><br>
+            &#128151;
+          </p>
+        </div>
+        <div class="media-content">
+          <div class="content">
+            <p>
+              <strong><a href="/user/<%= post.author.name %>"><%= post.author.name %></a></strong>
+              <small class="is-size-7"><%= dateFormatted %></small>
+            </p>
+            <p>
+              <strong><%= post.title %></strong><br>
+              <%= post.content %>
+            </p>
+          </div>
+        </div>
+        <div class="media-right">
+          <% if (user && user.hearts.includes(post._id)) { %>
+            <button class="button is-rounded static" disabled>Already &#128151;'ed</button>
+          <% } else { %>
+            <a href="/post/heart/<%= post._id %>">
+              <button class="button is-rounded">&#128151; this!</button>
+            </a>
+          <% } %>
+        </div>
+      </article>
     </div>
   <% }); %>
 </div>

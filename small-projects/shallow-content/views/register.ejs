@@ -11,12 +11,42 @@
 <% } %>
 
 <form method="POST" action="/register">
-  Username: <input type="text" name="username" required>
-  E-Mail address: <input type="text" name="mail" required>
-  Password: <input type="password" name="password" required>
-  A short description about you:
-  <textarea name="description"></textarea>
-  <input type="submit" value="Create account">
+  <div class="field">
+    <label class="label">Username</label>
+    <div class="control">
+      <input class="input is-primary" name="name" type="text" placeholder="e.g Alyceen">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">Email address</label>
+    <div class="control">
+      <input class="input is-primary" name="mail" type="email" placeholder="e.g. alyceen@gmail.com">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">Password</label>
+    <div class="control">
+      <input class="input is-primary" name="password" type="password" required>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">Bio</label>
+    <div class="control">
+      <textarea class="textarea is-primary" name="description" placeholder="A short description of your shallow personality"></textarea>
+    </div>
+  </div>
+
+  <div class="field is-grouped">
+    <div class="control">
+      <button class="button is-link" type="submit">Submit</button>
+    </div>
+    <div class="control">
+      <button class="button is-link is-light" type="reset">Cancel</button>
+    </div>
+  </div>
 </form>
 
 <%- include('_footer') -%> 
