@@ -103,19 +103,41 @@ var dropdown =
 render(dropdown);
 ```
 
+In React, JSX can be used to simplify the return value of the `render()` method.
+
+```js
+render() {
+  return ( // with no parentheses, JS would auto-insert a semicolon after return here
+    <div>
+      <someComponent prop="someProp" />
+    </div>
+  )
+}
+```
+
+The `render()` call should return only one top-level element (because internally it can only return one `React.createElement()` call, which is what JSX gets converted into). To not uselessly nest `div`'s, `<React.Fragment>` can be used as the top-level element. That fragment will not be represented in the browser DOM.
+
+Comments in JSX can be created by wrapping a normal JS comment in curly braces (`{ /* a comment */}`).
+
+A few normal HTML properties can't be used in JSX because they are regular JS keywords. The two most common cases are `class=""` and `for=""` (the latter mainly being used inside `label` tags). In those cases, there is a special JSX form: `className` and `htmlFor` for the two specified examples.
+
 ## Components, Props, State, Lifecycles
+
+Props are to components what attributes are to regular HTML tags: additional data and information. Strings can be passed into a component exactly like attributes, every other value needs to be wrapped in curly braces:
+
+```html
+<someComponent stringProp="LS rocks" numProp={42} boolProp={false} />
+```
 
 In React, props are immutable. To handle changing state, a special `state` object is introduced. That object can only be assigned to in the constructor function (when using the ES6 class syntax do define components). Otherwise, the explicit `this.setState()` method needs to be used.
 
-Every component has a `render()` function that returns JSX.
-
 In the lifecycle of a component, certain functions of a component will be executed at certain times. For example, `componentDidMount()` gets invoked once the component is actually added into the browser DOM. 
 
-since both `this.state` and `this.props` for a component update asynchronously, any reliance on state or props in a `setState()` call bears a risk of those values not being what is expected.
+Since both `this.state` and `this.props` for a component update asynchronously, any reliance on state or props in a `setState()` call bears a risk of those values not being what is expected.
 `setState()` therefore has a second form that can receive a function with two arguments, the state and the props, with the state being the previous state and props being whatever props are at the time the update is actually executed.
 Any update to `this.state` is shallow merged, so properties of the state object can be updated independently with separate `setState()` calls.
 
-Any component can pass its state down to a child element (be that an HTML element or another React component), but not the other way around. Date flow in React is therefore uni-directional.
+Any component can pass its state down to a child element (be that an HTML element or another React component) by passing it as that child's props, but not the other way around. Date flow in React is therefore uni-directional.
 
 ## Handling Events in React
 
@@ -190,6 +212,8 @@ The key attribute should be specified whenever list items get created so that Re
 ## Forms
 
 Typically, HTML forms manage their own internal state. React can be defined as the single source of truth for a form element by handling those element's events (like user input). It is then a so-called _controlled component_.
+
+If there would just be a `value` provided to input inside of the component, this value would overwrite every input on each render. So an `onChange()` method is strictly required or the definition of a `defaultValue` attribute to the `input` element.
 
 ```jsx
 class NameForm extends React.Component {

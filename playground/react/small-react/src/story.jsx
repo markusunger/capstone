@@ -23,7 +23,7 @@ class Story extends React.Component {
 
     return (
       <div className="box">
-        <a href={url}>{title}</a>
+        <a href={url}>{title}</a> <span className="is-small">({url.})</span>
       </div>
     )
   }
