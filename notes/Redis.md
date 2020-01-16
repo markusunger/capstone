@@ -50,7 +50,7 @@ There are two types of persistence offered by Redis:
 
 ## RDB
 
-RDB creates a single-file representation of the Redis data at a specific point in time. Those snapshots can be created at certain intervals when at least a specified number of writes have occured. RDB snapshots are written by a forked process, meaning that the parent instance will never do the necessary disk I/O. 
+RDB creates a single-file representation of the Redis data at a specific point in time. Those snapshots can be created at certain intervals when at least a specified number of writes have occured. RDB snapshots are written by a forked process, meaning that the parent instance (i.e. the process serving requests) will never do the necessary disk I/O itself. 
 
 To enable or configure RDB snapshotting, the `redis.conf` provides the `save` command in the form of `save <seconds> <changes>`. `save 900 1` enables snapshotting after 900 seconds (15 minute) when at least 1 key has changed.
 
