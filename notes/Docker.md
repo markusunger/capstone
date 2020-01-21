@@ -14,8 +14,7 @@ _Images_ are at the core of a Docker container: they are a collection of files a
 _Detached containers_ are containers that are not attached to any input or output stream. So, to run a detached NGINX container, all that's necessary is:
 
 ```
-docker run --detach \
---name web nginx:latest
+docker run --detach nginx:latest
 ```
 
 This command returns a unique 1024-bit identifier for the container. A detached container then just runs in the background. To save the container id for use later, it can be saved in a shell variable like this:
@@ -27,7 +26,7 @@ echo $CID // -> outputs the container id
 
 `docker create` works just like `docker run` but initializes a stopped container.
 
-To run interactive containers, the `--interactive` (or `-i`) flag keeps `stdin` open for the container and `--tty` (or `-t`) allocates a virtual console to it. A basic interative Docker container with a shell would be run like this:
+To run interactive containers, the `--interactive` (or `-i`) flag keeps `stdin` open for the container and `--tty` (or `-t`) allocates a virtual console to it. A basic interactive Docker container with a shell would be run like this:
 
 ```
 docker run --interactive --tty \
@@ -37,7 +36,7 @@ busybox:1.29 /bin/sh
 
 Ctrl + P and Ctrl + Q can detach the terminal from an interactive container.
 
-To see a list of active containers, `docker ps` returns ids, image and container  names, uptime, ports in use by the container as well as currently running commands in each container.
+To see a list of active containers, `docker ps` returns ids, image and container  names, uptime, ports in use by the container as well as currently running commands in each container. The `-a` flag displays all containers, whether running, pause or inactive, compared to the default list with only running containers.
 
 Logfiles for a container can be fetched with `docker logs <CONTAINER-NAME>`. This basically prints everything from the container's `stdout` and `stderr` without any truncation, so this output can get pretty large over time. For actively monitoring the logs of a container, `docker logs` can be run with the `--follow flag` (or `-f`), providing a stream of all log messages.
 
@@ -45,10 +44,35 @@ Containers can be stopped by running `docker stop <CONTAINER-NAME>` or restarted
 
 To execute commands inside of a container, `docker exec <CONTAINER-NAME> <COMMAND>` can be used.
 
+ list of running processes in a container can be printed by using `docker top <CONTAINER-NAME>`.
+
+A container's configuration can be output by calling `docker inspect <CONTAINER-NAME>`. With the `--format` (or `-f`) flag, that JSON output can be formatted or transformed via [Go Templates](https://golang.org/pkg/text/template/).
+
 To keep containers separated, Docker by default creates a _process id namespace_ for each one. PIDs are used by a Linux system to identify processes. Since each container has its own namespace, they can each have their own PIDs (with PID `1` potentially identifying a different process in each container).  
 To run a container without a separate namespace, `docker run --pid host` would use the host OS's namespace, so that the container can access all processes on the host system, if necessary.
+
+### Container identification
 
 When running a varying amount of Docker containers and dynamically creating or tearing down some, naming the with the `--name` flag is no longer viable.  
 In that case, their unique ids can either be used in combination with shell  scripts (like described above) or a CID (container id) file can be leveraged. Both `docker run` and `docker create` can take a `--cidfile <PATH-TO-FILE>` flag to automatically write their ids to a file.  
 Another alternative would be using `docker ps` with the `--latest` (or `-l`) flag for outputting only the last created container and `--quiet` (or `-q`) to only output the container id.  
-Another helpful feature is Docker's auto-naming: every container receives a human-readable name in the form of `<adjective>_<inventor_name>` (like `festive_tesla`) that can be read through `docker ps -a`.
+Another helpful feature is Docker's auto-naming: every container receives a human-readable name in the form of `<adjective>_<inventor_name>` (like `festive_tesla`) that can be read through `docker ps`.
+
+### Environment-agnostic Systems
+
+Containers should ideally not hold any data specific to them to allow for easy replacement and/or scaling of the overall deployment architecture without lots of manual maintenance work.  
+To help achieve that, containers can be run in a read-only mode which prevents write access to the file system:
+
+```
+docker run --read-only --volume /run/apache2/ --tmpfs /tmp wpordpress:5.0.0-php7.2-apache
+```
+
+This would run a container in read-only mode with two exceptions: a specifically mounted volume from the host system to write data to (by using `-v /run/apache2/`) and a temporary in-memory filesystem (`--tmpfs /tmp`).
+
+Additionally, configuration directly in the container can be minimized by injecting environment variables into it. This can be done by using the `--env` (or `-e`) flag.
+
+```
+docker run --env MY_ENV_VARIABLE="just testing" busybox:latest env
+```
+
+This automatically calls `env` after the container runs and outputs (among others) the defined environment variable.
