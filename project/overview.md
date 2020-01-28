@@ -24,6 +24,8 @@ Hackathon participants, frontend developers who want a quick mocked API, novices
 - Serving Special Requests
   - How are the following things handled: pagination, limits, sorting? How is parsing of those URL parameters handled or is there another alternative (headers? request body? what are the best practices)?
 
+# Features
+- get a `pong` reply on a `GET /ping` request (for Christina)Da hätte ich dich 
 
 ## Stretch goals
 

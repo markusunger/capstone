@@ -1,0 +1,13 @@
+{
+  "name": "prototype-api",
+  "version": "0.1.0",
+  "description": "prototyping a schema-less, intellient API",
+  "main": "index.js",
+  "author": "Markus Unger",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "morgan": "^1.9.1"
+  }
+}

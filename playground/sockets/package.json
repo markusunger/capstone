@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "ws": "^7.2.1"
+  },
+  "name": "socket-server",
+  "version": "1.0.0",
+  "description": "A small websockets chat server",
+  "main": "index.js",
+  "author": "Markus Unger",
+  "license": "MIT"
+}

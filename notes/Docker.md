@@ -40,11 +40,16 @@ To see a list of active containers, `docker ps` returns ids, image and container
 
 Logfiles for a container can be fetched with `docker logs <CONTAINER-NAME>`. This basically prints everything from the container's `stdout` and `stderr` without any truncation, so this output can get pretty large over time. For actively monitoring the logs of a container, `docker logs` can be run with the `--follow flag` (or `-f`), providing a stream of all log messages.
 
-Containers can be stopped by running `docker stop <CONTAINER-NAME>` or restarted with `docker restart <CONTAINER-NAME>`.
+Containers can be stopped by running `docker stop <CONTAINER-NAME>` (sending a `SIG_HUP` to the container) or restarted with `docker restart <CONTAINER-NAME>`. To immediately stop execution of a container, `docker kill <CONTAINER-NAME>` can be issued. Removing a stopped container from the system is done by using `docker rm <CONTAINER-NAME>` (with the optional `-f` flag killing the container in its execution, if necessary).  
+To automatically remove a container once it has entered the exit state, the `--rm` flag for `docker run` is helpful. A quick cleanup of all containers (running or not) can be done by using `docker rm -vf $(docker ps -a -q)`.
+
+Docker images themselves remain on the host and can be viewed with `docker images`. To remove all Docker images from disk, there is a shortcut similar to container removal: `docker rmi $(docker images -q)`.
 
 To execute commands inside of a container, `docker exec <CONTAINER-NAME> <COMMAND>` can be used.
 
- list of running processes in a container can be printed by using `docker top <CONTAINER-NAME>`.
+A list of running processes in a container can be printed by using `docker top <CONTAINER-NAME>`.
+
+With the help of the `--restart` flag set during container creation, a restart policy can be defined that can help the container automatically restart in the events of a failure.
 
 A container's configuration can be output by calling `docker inspect <CONTAINER-NAME>`. With the `--format` (or `-f`) flag, that JSON output can be formatted or transformed via [Go Templates](https://golang.org/pkg/text/template/).
 
@@ -76,3 +81,21 @@ docker run --env MY_ENV_VARIABLE="just testing" busybox:latest env
 ```
 
 This automatically calls `env` after the container runs and outputs (among others) the defined environment variable.
+
+## Installing Software
+
+Docker images are files used to build containers. They can be found in registries and are identified with a _repository name_ comprising the registry host, the user/organization and a short name. Additionally, tags can be used to identify different versions of an image.
+
+The aforementioned _Docker Hub_ is the official registry and index (and by far the largest registry) and it is locat4d at the registry docker.io.
+
+Both `docker pull` and `docker run` use _Docker Hub_ by default. Using an alternative registry is as simple as providing the full repository name, e.g. `docker pull quay.io/markusunger/bestimage:latest`.
+
+Another options is using an image from a file, which can be done with `docker load`.
+
+Docker images can be built from _Dockerfiles_. A Dockerfile is a script that details a series of steps to be run in order to build a new image. By running `docker build -t <IMAGE-NAME> <DOCKERFILE-NAME>`, an image will be built that way.
+
+### Layers
+
+Often, _images_ are in reality a collection of _image layers_, where each layer is a set of files and metadata that represents an atomic unit. Layers are also called _intermediate images_, and they are very similar to images in the sense that they build on another image, apply filesystem changes, resulting a new image comprising the parent image and the added layer.
+
+Images maintain parent/child relationships, meaning that they build from a parent and form layers on top of them. 

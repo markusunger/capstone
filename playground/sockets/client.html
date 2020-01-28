@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Chat Client</title>
+  <style>
+    #chatarea {
+      background-color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div id="chatarea">
+
+  </div>
+  <input type="text" name="chatbox" id="chatbox"> <button type="button" id="send">Send</button>
+  <script>
+    window.onload = () => {
+      const chat = document.getElementById('chatarea');
+      const socket = new WebSocket('ws://localhost:8080');
+      socket.addEventListener('message', (e) => {
+        chat.textContent = chat.textContent += `${e.data}\r\n`;
+      });
+    }  
+  </script>
+</body>
+</html>
