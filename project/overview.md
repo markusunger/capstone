@@ -16,16 +16,24 @@ Hackathon participants, frontend developers who want a quick mocked API, novices
 - Account management
   - Can all functionality be implemented without having an account system in place? Is that also true for the stretch goals (especially the real-time request inspection feature or the configuration of pre-defined mock data and rule-based endpoint behavior)?
   - If an account management system is needed, does that extend to API authentication (e.g. JWT tokens)? Should there be an option for authenticated/non-authenticated API access?
+- API routes
+  - determine rules for auto-detection of collections and single-use endpoints (nouns vs. verbs, pluralization, keywords?)
+  - can query parameters be used to specify endpoint rules without having to use some external config interface?
 - HTTP request is received
   - How is the request assigned to a specific API? Is the URL parsed or is each subdomain/API path reverse proxied to a container or something else? Or does the main application server handle everything itself?
   - If there are separate services for each API, in what form are they managed? Are containers used? Will they be run on-demand and torn down after the time limit is hit? Who manages those containers? Docker Swarm? Are there alternatives?
 - Getting and Saving Data
   - How is data from a POST or PUT request saved? In a PostgreSQL DB? Is there one big database or multiple small databases for each API? Is a NoSQL store a better alterntive (document store like MongoDB or key-value-store like Redis)? If so, is there one instance (e.g. one Redis server) per API or again one big store for everything? Is the POST/PUT request stored as a JSON blob or is it serialized for optimal storage/retrieval?
+  - what is the best approach for serialization anyway when considering options for searching, limits/pagination, sorting? SQL might be the obvious best choice but what about e.g. JSON extensions for Redis?
 - Serving Special Requests
   - How are the following things handled: pagination, limits, sorting? How is parsing of those URL parameters handled or is there another alternative (headers? request body? what are the best practices)?
 
-# Features
-- get a `pong` reply on a `GET /ping` request (for Christina)Da hätte ich dich 
+## Building Blocks
+- API backend server in Node.js, either for handling all APIs or a deployable separate container for each API
+- creation/editing backend in Node.js with either server-side rendered interface frontend (HTML/CSS/vanilla JS) or a React frontend that communicates with the backend
+
+## Requested Features
+- get a `pong` reply on a `GET /ping` request (for Christina)
 
 ## Stretch goals
 
