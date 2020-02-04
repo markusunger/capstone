@@ -8,7 +8,7 @@ A web API (_Application Programming Interface_) is a web interface for software.
 
 Naming resources and properties properly is important to increase user friendliness of the API. A feature flag called `bankAccountOverdraftProtectionFeatureActiveBln` obfuscates much of the actual information: the `bln` (for the associated data type) is unnecessary as is the `Active` (being again redundant with the associated data type), `Feature` adds no value and prefixing `bankAccount` doesn't make sense in the context of a schema that is specifically stated in e.g. an OpenAPI schema. `overdraftProtection` is the way clearer name without sacrificing information.
 
-The same goes for data types: An ISO 8601 date string is easier to understand than a UNIX timestamp integer (with the omission of a time plus time zone - if not needed - preventing time zone conversion issues). Numerical codes (e.g. `"type": 1`) are often better converted to expressive strings (e.g. `"type": "admin"). Accurate representations are most important, closely followed by providing types that could be humanly understood even without context.  
+The same goes for data types: An ISO 8601 date string is easier to understand than a UNIX timestamp integer (with the omission of a time plus time zone - if not needed - preventing time zone conversion issues). Numerical codes (e.g. `"type": 1`) are often better converted to expressive strings (e.g. `"type": "admin"`). Accurate representations are most important, closely followed by providing types that could be humanly understood even without context.  
 If something like a numerical `"type"` value is internally used, an additional property `"typeName"` could be used to clarify the meaning. Data can and should be aggregated or pre-processed compared to its raw storage form to provide meaningful information to the consumer (e.g. converting a `"creationDate"` string to an integer value of `"yearsExisting"` i that is what this data is used for).
 
 Error feedback needs to be provided for all possible error types:
@@ -33,17 +33,19 @@ To avoid too many request/error cycles, error feedback should be as exhaustive a
 
 ```json
 {
-"message": "Invalid request",
-"errors": [
-{
-"source": "source",
-"type": "MISSING_MANDATORY_PROPERTY",
-"message": "Source is mandatory"},
-{
-"source": "destination",
-"type": "MISSING_MANDATORY_PROPERTY"},
-"message": "Destination is mandatory"}
-]
+  "message": "Invalid request",
+  "errors": [
+    {
+      "source": "source",
+      "type": "MISSING_MANDATORY_PROPERTY",
+      "message": "Source is mandatory"
+    },
+    {
+      "source": "destination",
+      "type": "MISSING_MANDATORY_PROPERTY",
+      "message": "Destination is mandatory"
+    }
+  ]
 }
 ```
 
