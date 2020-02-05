@@ -61,4 +61,39 @@ Every convention chosen for naming should be enforced in all parts of a system t
 - Level 3 — Consistency with the domain(s) of an API
 - Level 4 — Consistency with the rest of the world
 
-Level 4 means consistency with best or common practices used in API design. There are ISO standards for representation of currencies, times etc., allowing API consumers to be able to instinctively use an API by virtue of previous experiences.
+Level 4 means consistency with best or common practices used in API design. There are ISO standards for representation of currencies, times etc. and also other ubiquitous conventions, allowing API consumers to be able to instinctively use an API by virtue of previous experiences.
+
+Providing an adaptable API might mean providing and accepting different formats for data input and output. This is easily doable either by accepting a query parameter (`?format=txt`) or by using the more idiomatic `Accept` headers. The client might send a `GET` request with the header `Accept: text/plain` and the server can then respond by sending a `Content-type: text/plain` header and using that specified format for the body data. This is called _content negotiation_. If a client request a content type that is not available, the server can return a `406 Not Acceptable` error.  
+This also works for when the client sends a requst body (e.g. with a `POST`). If the media type specified in the `Content-Type` header field is not supported by the server, it can return a `415 Unsupported Media Type` error.
+
+There are two ways to support _pagination_ for API calls: one is using query parameters (`?pageSize=30&page=2` or similar), which is a widely used method for paginating or limiting `GET` results for larger collections.  
+Another way is by using the HTTP `Range` header which is used in the format `Range: <unit>=<range-start>-<range-end>`. If `items` is used as the unit throughout all collections, the chance of an unintentional use of the wrong unit gets eliminated (though `bytes` can be a relevant unit for limiting binary data transfer).  
+Query parameters also have uses for allowing clients to define filter or sorting parameters, which can be neatly combined in a query string.
+
+Discoverability (showing a consumer the options available to them) can improve an API considerably. Pagination, like described above, could add metadata to the response, providing information about the current page and the total number of pages:
+
+```json
+{
+  "pagination" : {
+    "page": 1,
+    "totalPages": 9
+  },
+  "items": [...]
+}
+```
+
+Continuing with that pattern, the hypermedia approach that Fielding described in his original REST specification can aid in improving discoverability. By exposing link relationships as metadata in a response, a consumer can navigate and use the whole API without having to know about its structure beforehand.  
+Those links usually come in the form of `href` or `link` properties and can be used for all responses. For pagination, it could link the next and previous pages, for collection items it could link to a detail page or any other methods of using a resource or an item. See the official GitHub API for an excellent example of those related links in response bodies and how it allows discovering the whole API without ever looking up another endpoint after the root one.
+
+Also playing into discoverability is allowing HTTP `OPTIONS` requests and responding with an `Allow` header field that specifies which HTTP methods the requested API path supports.
+
+## API and API Data Organization and Management
+
+Easy optimization in the way that data is sent with a response is to
+- a) group related data together (maybe as a substructure like a nested object or by using shared prefixes)
+- b) sort data and/or groups by their importance for the consumer
+
+In the same way, error or success messages can be grouped by type and sorted by their importance or severity.
+
+Considering the granularity of the data provided by an API can lead to the conclusion that some resource representations might be too large in size. Both the number of properties as well as the maximum depth of nested properties should be taken into account and reduced, if necessary.
+
