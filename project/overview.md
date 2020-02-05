@@ -8,7 +8,7 @@ There should originally be no sign-up required, just a button on the web page to
 On API creation some kind of token is issued alongside the API path that allows for the claiming of that API later.
 
 When an account is created, API's can be claimed with the issued token. The web frontend allows for the creation of pre-defined rules and responses for endpoints. The options are:
-- allow certain methods to be performed on the endpoint or not (and possibly return a 405 Method Not Allowed status response)
+- allow certain methods to be performed on the endpoint or not
 - JSON data can be provided for any endpoint to be sent back as the response payload along with a custom status code, if desired
 
 For every endpoint not specifically configured in the web frontend, the semi-"intelligent" automatic handling is used.
@@ -27,7 +27,7 @@ Hackathon participants, frontend developers who want a quick mocked API, novices
   - How is a request assigned to a specific API? Is the URL parsed or is each subdomain reverse proxied? If so, where to, since there is most likely only a single Express backend server? Or does the main application server simply handle everything itself?
   - There probably isn't one, but keep investigating solutions for more intelligent API path mapping to actions (nested resources, singletons instead of collections, non-resource endpoints like `/logout`)
   - Since the order for path actions is important, how does the API ensure that the most specific route gets executed (taking into account both pre-defined endpoints [should be prioritized anyway] and automatic behavior)?
-  - What about support for HEAD and OPTIONS request types?
+  - What about support for HEAD and OPTIONS request types? How is the validity of a request path determined?
   - How are nonsensical/not allowed route request handled (e.g. a POST to a specific resource item), 400 Bad Request and an error?
   - What is the general structure of an API response, is an error field only transmitted on error, is the data field labelled as such or is data just the top-level object returned if it was a successful request?
   - How are error messages aggregated when multiple errors occur (e.g. missing resource and wrong request type)?
@@ -37,7 +37,7 @@ Hackathon participants, frontend developers who want a quick mocked API, novices
   - What is the best approach for serialization anyway when considering options for searching, limits/pagination, sorting? SQL might be the obvious best choice but what about e.g. JSON extensions for Redis?
   - How are nested structures saved? If a resource has a many-to-many relationship (e.g. users and comments), will all sub-resources be saved within the main resource (e.g. all comments froma user inside the user object itself) or will those sub-resource be saved as a separate entity with a reference to the specific main resource item (e.g. all comments get a userId reference)?
   - Are different relationships (one-to-one, one-to-many, many-to-many) supported and what are the differences in their treatment?
-  - 
+  - How are POST requests to known resources (nested and main) handled? Is an id always inserted (or a reference id to the main resource)?
 - Serving Special Requests
   - How are the following things handled: pagination, limits, sorting? How is parsing of those URL parameters handled or is there another alternative (headers? request body? what are the best practices here)?
 - CORS
