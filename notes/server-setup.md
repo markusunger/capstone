@@ -100,5 +100,5 @@
 
 - `git clone` both repositories locally and `yarn install`
 - set up `.env` file
-- install `pms2` (`yarn add --global pm2`)
-- use `pm2 start yarn run --name <whatever-backend>` to start process
+- install `pm2` (`yarn add --global pm2`)
+- use `pm2 start yarn dev --name <whatever-backend>` to start process

@@ -9,7 +9,7 @@ The core React library exposes functionality to create and configure those compo
 
 For that, React implements a _virtual DOM_ that sits between the application and the browser DOM. This virtual DOM uses a fast diffing algorithm to determine which parts of the browser DOM need to be updated, preventing unnecessary repainting and rerendering in the browser.
 
-While React can be written as part of a complex ecosystem with many helpers (Webpack, Parcel, ...) or as part of a toolbox that does all these configuration for you (`create-react-app`), at its core, React needs just the two aforementioned libraries.
+While React can be written as part of a complex ecosystem with many helpers (Webpack, Parcel, Babel, etc.) or as part of a toolbox that does all these configuration for you (`create-react-app`), at its core, React needs just the two aforementioned libraries.
 
 ```html
 <html>
@@ -147,7 +147,7 @@ In JSX a function can be passed as an event handler (events in React use camelCa
 function engineStarter() {
   function startEngines(e) {
     e.preventDefault();
-    console.og('Starting engines ...');
+    console.log('Starting engines ...');
   }
 
   return (
@@ -247,3 +247,127 @@ class NameForm extends React.Component {
   }
 }
 ```
+
+# React Hooks
+
+Class-based component syntax for writing React had a few downsides: logic needed to be duplicated across different lifecycle methods, there was no way to mixin logic to components (except for HOCs which led to the dreaded wrapper hell) and there was the clunkiness of having to explicitly bind instance methods before they could be passed down as props.
+
+All that was solved with function components using the new Hooks way of writing React.
+
+## The `useState` hook
+
+`useState()` takes a single argument (the initial state value) and returns an array with two elements: first, the current state value, the second, a method to update the state.
+
+```js
+const [theme, setTheme] = React.useState('light');
+
+console.log(theme); // 'light'
+setTheme('dark');
+console.log(theme); // 'dark'
+```
+
+To be precise, the `useState` hook allows for the preservation of of values (via closures) between component renders and can trigger re-renders of it.
+
+Beware: whenever setting the next state based on the current state, use the function invocation of the `useState` setter:
+
+```js
+const [count, setCount] = React.useState(0);
+const increment = () => setCount((count) => count + 1);
+```
+
+If the initial state is the result of an expensive operation, it is recommended to pass a function as the `useState` argument:
+
+```js
+const [count, setCount] = React.useState(() => getExpensiveInitialCount());
+```
+
+That way, the expensive initial state is only invoked once instead of on each render.
+
+## The `useEffect` hook
+
+`useEffect` is used to implement side effects in function components. It has two arguments:
+
+1. a function that specifies the side effect (e.g. an API call or basically every operation outside of React)
+2. an array that specifies which values are observed to trigger the effect invocation (and therefore allows skipping the side effect)
+
+The effect is invoked by React *after* the DOM updates (meaning after the component is rendered) to prevent the effect from blocking any rendering operation. By default, if there is no second argument to `useEffect`, the effect is executed after every single re-render. If the second argument is an empty array, the effect will only get invoked on the initial render, and if the array contains values, a change to those values determines whether the effect gets executed.
+
+```js
+function Profile({ username }) {
+  const [profile, setProfile] = React.useState(null);
+
+  React.useEffect(() => {
+    getGithubProfile(username)
+      .then(setProfile)
+  }, [username]);
+```
+
+`useEffect` also provides a way to cleanup any lingering artifacts. When `useEffect` returns a function, React will execute that function right before the component gets removed from the DOM. Additionally, that function will get invoked when the component gets re-rendered, right before re-invoking the effect.
+
+```js
+import { subscribe, unsubscribe } from './api';
+
+function Profile ({ username }) {
+  const [profile, setProfile] = React.useState(null);
+
+  React.useEffect(() => {
+    subscribe(username, setProfile);
+    return () => {
+      unsubscribe(username);
+      setProfile(null);
+    }
+  }, [username]);
+```
+
+## Custom Hooks
+
+Custom hooks allow the extraction of component logic into reusable functions. They replace the traditional React way of using render props and higher-rder components.  
+Custom hooks should always start with a `use` in their name. It may also call other hooks. Other than that, it is upon the programmer to decide what arguments a custom hook should take and what its return value is.
+
+```js
+function useFetch(url) {
+  const [loading, setLoading] = React.useState(true);
+  const [data, setData] = React.useState(null);
+  const [error, setError] = React.useState(null);
+
+  React.useEffect(() => {
+    setLoading(true);
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+        setError(null);
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.warn(e.message);
+        setError('Error fetching data. Try again.');
+        setLoading(false);
+      });
+  }, [url]);
+
+  return { loading, data, error };
+}
+```
+
+## Other hooks
+
+The `useReducer` hook is useful to manage a components state with the same functional pattern that the vanilla JS method `reduce` provides. `useReducer`  takes two arguments: a function to determine the next state (called the reducer) and an initial state value. It returns the current state value and a dispatch method. The argument that dispatch receives will be passed as the second argument for the reducer function (the first argument for it being the current state).
+
+```js
+const [state, dispatch] = useReducer(reducer, initialState);
+```
+
+`useState` persists any value across component renders, but it inherently also triggers a re-render for each change of that value. If the goal is to persist a non-UI value that shouldn't trigger a new render step, the `useRef` hook can be used. 
+
+```js
+const refContainer = useRef(initialValue);
+// ...
+refContainer.current; // initialValue
+```
+
+One of the uses of refs is to access the DOM. Any ref object passed to React in the form of `<div ref={myCustomRef} />` will set the refs `current` property to the DOM node.
+
+If a piece of data needs to be available throughout the component tree, it can either be passed down via props (cumbersome, if many components are involved) or be set as a _context_.  
+`createContext` creates a context object. Each of these objects comes with a Provider component that allows consuming components to subscribe to changes to that context object.
