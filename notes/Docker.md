@@ -5,6 +5,14 @@ Docker containers live completely in user space and can only access memory and r
 
 Docker helps providing a consistent environment for applications to run in, with all dependencies and other required resources made available inside the container. Containers also help improve security by effectively jailing an application inside of a container (with a few caveats, of course).
 
+## What Docker does
+
+Docker is essentially wrapping around three OS features to create what we call a _container_.
+
+1. a `chroot`'ed environment that cannot access files outside of it
+2. a separate namespace to prevent cross-container process access
+3. `cgroups` that control resource allocation and therefore prevent one ballistic container from affecting others as well
+
 ## Using Docker
 
 Running `docker help` lists all available commands to the Docker CLI, with `docker help <COMMAND>` giving a more in-depth explanation for each of the commands.
@@ -93,6 +101,25 @@ Both `docker pull` and `docker run` use _Docker Hub_ by default. Using an altern
 Another options is using an image from a file, which can be done with `docker load`.
 
 Docker images can be built from _Dockerfiles_. A Dockerfile is a script that details a series of steps to be run in order to build a new image. By running `docker build -t <IMAGE-NAME> <DOCKERFILE-NAME>`, an image will be built that way.
+
+The simplest Dockerfile would include a `FROM` directive (the base image to build on top of) and a `CMD` line stating which command should be executed upon running the image.
+
+```docker
+FROM node:alpine
+
+CMD ["node", "-e", "console.log('Node works!')"]
+```
+
+With `node build .` inside of the directory containing that Dockerfile would be built into a container that in turn could be run with `docker run <container-id-provided-by-docker>`.
+
+Other Dockerfile commands include:
+
+- `USER <username>` to switch to another user (because default is always `root`, so switching e.g. to `node` increases security)
+- `COPY <src> <dest>` to copy local files to the container filesystem (`--chown=user:group` flag to set permissions)
+- `ADD` works like `COPY` for the local filesystem but supports network requests as well (and automatic unzipping/untar'ing)
+- `WORKDIR <dir>` to set the working directory for all subsequent commands (but does so as `root`! `mkdir` with a `RUN` command might be better for permission reasons)
+- `RUN` executes command inside the shell of the container (e.g. `RUN npm ci` to install `package-lock.json` packages)
+- `EXPOSE` exposes ports on the host (needs the `-P` flag for `docker run`, but the `--publish` flag is better)
 
 ### Layers
 
