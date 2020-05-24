@@ -35,6 +35,10 @@
     ```
   - issue cert `sudo certbot -d 200ok.app -d *.200ok.app --manual certonly` 
 
+  - for renewal: `sudo certbot certonly --manual --preferred-challenges dns-01 -d 200ok.app -d *.200ok.app`
+  - beware: the http-01 challenge will require a publicly available file under a http address which currently does not work with the 200ok nginx configuration (that automatically redirects to https which certbot does not seem to follow)
+
+
 - add server block configuration to `/etc/nginx/sites-available/200ok.app`
   ```
   upstream apibackend {
