@@ -94,7 +94,7 @@ This automatically calls `env` after the container runs and outputs (among other
 
 Docker images are files used to build containers. They can be found in registries and are identified with a _repository name_ comprising the registry host, the user/organization and a short name. Additionally, tags can be used to identify different versions of an image.
 
-The aforementioned _Docker Hub_ is the official registry and index (and by far the largest registry) and it is locat4d at the registry docker.io.
+The aforementioned _Docker Hub_ is the official registry and index (and by far the largest registry) and it is located at the registry docker.io.
 
 Both `docker pull` and `docker run` use _Docker Hub_ by default. Using an alternative registry is as simple as providing the full repository name, e.g. `docker pull quay.io/markusunger/bestimage:latest`.
 
@@ -126,3 +126,5 @@ Other Dockerfile commands include:
 Often, _images_ are in reality a collection of _image layers_, where each layer is a set of files and metadata that represents an atomic unit. Layers are also called _intermediate images_, and they are very similar to images in the sense that they build on another image, apply filesystem changes, resulting a new image comprising the parent image and the added layer.
 
 Images maintain parent/child relationships, meaning that they build from a parent and form layers on top of them. 
+
+Since layers can be cached, Docker can speed up the container build process by keeping layers from previous build and only build on top of those that are unchanged from one build process to the next.
